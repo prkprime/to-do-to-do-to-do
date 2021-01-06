@@ -1,4 +1,4 @@
-use std::{env, process, collections, fs, io, path, error};
+use std::{collections, env, error, fs, io, path, process};
 
 use serde_json;
 
@@ -33,18 +33,17 @@ impl ToDo {
     }
 
     fn new() -> Result<ToDo, io::Error> {
-       let f = fs::OpenOptions::new()
-           .write(true)
-           .create(true)
-           .read(true)
-           .open(get_db_path())?;
+        let f = fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .read(true)
+            .open(get_db_path())?;
         match serde_json::from_reader(f) {
             Ok(map) => Ok(ToDo { map }),
             Err(e) if e.is_eof() => Ok(ToDo {
                 map: collections::HashMap::new(),
             }),
             Err(e) => panic!("An error occurred: {}", e),
-    
         }
     }
 }
@@ -67,7 +66,7 @@ fn main() {
 
     let mut todo = ToDo::new().unwrap();
 
-    if action ==  "add" {
+    if action == "add" {
         todo.insert(item);
         match todo.save() {
             Ok(_) => println!("todo saved"),
@@ -78,7 +77,7 @@ fn main() {
             Some(_) => match todo.save() {
                 Ok(_) => println!("todo saved"),
                 Err(why) => println!("Error Occured : {}", why),
-            }
+            },
             None => println!("'{}' not presern in the list", item),
         };
     }
