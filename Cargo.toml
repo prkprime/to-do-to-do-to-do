@@ -1,0 +1,10 @@
+[package]
+name = "to-do-to-do-to-do"
+version = "0.1.0"
+authors = ["Pratik Gorade <pratikgorade0@gmail.com>"]
+edition = "2018"
+description = "yet another TODO app so that you can forget about your tasks after adding them to app and then blame app for not reminding you"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
