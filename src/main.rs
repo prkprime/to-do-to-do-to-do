@@ -40,4 +40,16 @@ fn main() {
             process::exit(0)
         }
     };
+    
+    let mut todo = ToDo {
+        map: collections::HashMap::new(),
+    };
+
+    if action ==  "add" {
+        todo.insert(item);
+        match todo.save() {
+            Ok(_) => println!("todo saved"),
+            Err(why) => println!("Error Occured : {}", why),
+        }
+    }
 }
