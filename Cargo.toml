@@ -8,6 +8,7 @@ description = "yet another TODO app so that you can forget about your tasks afte
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+serde_json = "1.0.61"
 
 [profile.release]
 codegen-units = 1

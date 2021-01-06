@@ -1,4 +1,6 @@
-use std::{env, process, collections, fs, io, path, io::{Read}, str::{FromStr}};
+use std::{env, process, collections, fs, io, path, error};
+
+use serde_json;
 
 fn get_db_path() -> path::PathBuf {
     env::home_dir().unwrap().join(path::Path::new(".todo"))
@@ -14,13 +16,13 @@ impl ToDo {
         self.map.insert(key, true);
     }
 
-    fn save(self) -> Result<(), io::Error> {
-        let mut content = String::new();
-        for (k, v) in self.map {
-            let record = format!("{}\t{}\n", k, v);
-            content.push_str(&record);
-        }
-        fs::write(get_db_path(), content)
+    fn save(self) -> Result<(), Box<dyn error::Error>> {
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(get_db_path())?;
+        serde_json::to_writer_pretty(f, &self.map)?;
+        Ok(())
     }
 
     fn complete(&mut self, key: &String) -> Option<()> {
@@ -31,20 +33,19 @@ impl ToDo {
     }
 
     fn new() -> Result<ToDo, io::Error> {
-       let mut f = fs::OpenOptions::new()
+       let f = fs::OpenOptions::new()
            .write(true)
            .create(true)
            .read(true)
            .open(get_db_path())?;
-        let mut content = String::new();
-        f.read_to_string(&mut content)?;
-        let map: collections::HashMap<String, bool> = content
-            .lines()
-            .map(|line| line.splitn(2, '\t').collect::<Vec<&str>>())
-            .map(|v| (v[0], v[1]))
-            .map(|(k, v)| (String::from(k), bool::from_str(v).unwrap()))
-            .collect();
-        Ok(ToDo { map })
+        match serde_json::from_reader(f) {
+            Ok(map) => Ok(ToDo { map }),
+            Err(e) if e.is_eof() => Ok(ToDo {
+                map: collections::HashMap::new(),
+            }),
+            Err(e) => panic!("An error occurred: {}", e),
+    
+        }
     }
 }
 
